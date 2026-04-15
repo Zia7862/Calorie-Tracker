@@ -30,9 +30,30 @@
 
       <section class="auth-panel">
         <h2>Create account</h2>
-        <p class="subtext">Sign up with your email and password.</p>
+        <p class="subtext">Set up your profile so we can calculate your calorie plan.</p>
 
         <form id="signup-form" class="auth-form">
+          <label for="first-name">First name</label>
+          <input id="first-name" name="firstName" type="text" placeholder="e.g. Alex" required />
+
+          <label for="last-name">Surname</label>
+          <input id="last-name" name="lastName" type="text" placeholder="e.g. Smith" required />
+
+          <label for="age">Age</label>
+          <input id="age" name="age" type="number" min="13" max="100" step="1" required />
+
+          <label for="height-cm">Height (cm)</label>
+          <input id="height-cm" name="heightCm" type="number" min="120" max="250" step="1" required />
+
+          <label for="current-weight-kg">Current weight (kg)</label>
+          <input id="current-weight-kg" name="currentWeightKg" type="number" min="30" max="300" step="0.1" required />
+
+          <label for="goal-weight-kg">Goal weight (kg)</label>
+          <input id="goal-weight-kg" name="goalWeightKg" type="number" min="30" max="300" step="0.1" required />
+
+          <label for="goal-timeline-date">Goal timeline</label>
+          <input id="goal-timeline-date" name="goalTimelineDate" type="date" required />
+
           <label for="email">Email</label>
           <input id="email" name="email" type="email" placeholder="you@example.com" required />
 

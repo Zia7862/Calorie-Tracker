@@ -35,6 +35,18 @@
           <article class="card meals-card">
             <h3>Preferences</h3>
             <form id="settings-form" class="stack-form">
+              <label for="first-name">First name</label>
+              <input id="first-name" type="text" required />
+              <label for="last-name">Surname</label>
+              <input id="last-name" type="text" required />
+              <label for="age">Age</label>
+              <input id="age" type="number" min="13" max="100" step="1" required />
+              <label for="height-cm">Height (cm)</label>
+              <input id="height-cm" type="number" min="120" max="250" step="1" required />
+              <label for="goal-weight">Goal weight (kg)</label>
+              <input id="goal-weight" type="number" min="30" max="300" step="0.1" required />
+              <label for="goal-timeline-date">Goal timeline</label>
+              <input id="goal-timeline-date" type="date" required />
               <label for="default-goal">Default daily calorie goal</label>
               <input id="default-goal" type="number" min="1" step="1" required />
               <label for="hydration-goal">Hydration goal (ml/day)</label>

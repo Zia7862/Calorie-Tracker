@@ -35,7 +35,11 @@
             <h1>Dashboard</h1>
             <p class="subtext" id="welcome-text">Loading your account...</p>
           </div>
-          <p class="date-pill" id="today-date">Loading date...</p>
+          <div class="topbar-controls">
+            <p class="date-pill" id="today-date">Loading date...</p>
+            <label class="date-control-label" for="day-selector">View day</label>
+            <input id="day-selector" class="date-control-input" type="date" />
+          </div>
         </header>
 
         <section class="grid">
@@ -67,15 +71,23 @@
                 <p class="label">On track?</p>
                 <p class="value" id="on-track">-</p>
               </div>
+              <div>
+                <p class="label">Recommended calories</p>
+                <p class="value" id="recommended-calories">-</p>
+              </div>
+              <div>
+                <p class="label">Goal progress</p>
+                <p class="value" id="goal-progress">-</p>
+              </div>
             </div>
           </article>
 
           <article class="card">
             <h3>Quick links</h3>
             <div class="button-group">
-              <a class="action-link" href="./meals.html">Log a meal</a>
-              <a class="action-link" href="./hydration.html">Add water intake</a>
-              <a class="action-link" href="./progress.html">Update goals & weight</a>
+              <a class="action-link" id="meals-link" href="./meals.html">Log a meal</a>
+              <a class="action-link" id="hydration-link" href="./hydration.html">Add water intake</a>
+              <a class="action-link" id="progress-link" href="./progress.html">Update goals & weight</a>
             </div>
           </article>
 
@@ -83,6 +95,7 @@
             <h3>Today's hydration</h3>
             <p class="muted">Total water logged so far today.</p>
             <p class="value" id="water-today">0.0 L</p>
+            <p class="muted" id="timeline-text">Goal timeline information will appear here.</p>
           </article>
 
           <article class="card meals-card">

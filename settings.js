@@ -7,6 +7,12 @@ const todayDate = document.getElementById("today-date");
 const logoutBtn = document.getElementById("logout-btn");
 const statusMessage = document.getElementById("status-message");
 const settingsForm = document.getElementById("settings-form");
+const firstNameInput = document.getElementById("first-name");
+const lastNameInput = document.getElementById("last-name");
+const ageInput = document.getElementById("age");
+const heightCmInput = document.getElementById("height-cm");
+const goalWeightInput = document.getElementById("goal-weight");
+const goalTimelineDateInput = document.getElementById("goal-timeline-date");
 const defaultGoalInput = document.getElementById("default-goal");
 const hydrationGoalInput = document.getElementById("hydration-goal");
 const targetWeightInput = document.getElementById("target-weight");
@@ -28,6 +34,15 @@ function settingsRef(uid) {
 }
 
 async function loadSettings(uid) {
+  const userSnap = await getDoc(doc(db, "users", uid));
+  const userData = userSnap.exists() ? userSnap.data() : {};
+  firstNameInput.value = userData.firstName ?? "";
+  lastNameInput.value = userData.lastName ?? "";
+  ageInput.value = userData.age ? String(userData.age) : "";
+  heightCmInput.value = userData.heightCm ? String(userData.heightCm) : "";
+  goalWeightInput.value = userData.goalWeightKg ? String(userData.goalWeightKg) : "";
+  goalTimelineDateInput.value = userData.goalTimelineDate ?? "";
+
   const snap = await getDoc(settingsRef(uid));
   if (!snap.exists()) {
     defaultGoalInput.value = "2200";
@@ -48,10 +63,36 @@ logoutBtn.addEventListener("click", async () => {
 
 settingsForm.addEventListener("submit", async (event) => {
   event.preventDefault();
+  const firstName = firstNameInput.value.trim();
+  const lastName = lastNameInput.value.trim();
+  const age = Number(ageInput.value);
+  const heightCm = Number(heightCmInput.value);
+  const goalWeightKg = Number(goalWeightInput.value);
+  const goalTimelineDate = goalTimelineDateInput.value;
   const dailyCalorieGoalDefault = Number(defaultGoalInput.value);
   const hydrationGoalMl = Number(hydrationGoalInput.value);
   const targetWeightKg = targetWeightInput.value ? Number(targetWeightInput.value) : null;
 
+  if (!firstName || !lastName) {
+    showMessage("Enter your first name and surname.", "error");
+    return;
+  }
+  if (!Number.isFinite(age) || age < 13 || age > 100) {
+    showMessage("Enter a valid age.", "error");
+    return;
+  }
+  if (!Number.isFinite(heightCm) || heightCm < 120 || heightCm > 250) {
+    showMessage("Enter a valid height.", "error");
+    return;
+  }
+  if (!Number.isFinite(goalWeightKg) || goalWeightKg < 30 || goalWeightKg > 300) {
+    showMessage("Enter a valid goal weight.", "error");
+    return;
+  }
+  if (!goalTimelineDate) {
+    showMessage("Select a goal timeline date.", "error");
+    return;
+  }
   if (!Number.isFinite(dailyCalorieGoalDefault) || dailyCalorieGoalDefault <= 0) {
     showMessage("Enter a valid default calorie goal.", "error");
     return;
@@ -66,6 +107,20 @@ settingsForm.addEventListener("submit", async (event) => {
   }
 
   try {
+    await setDoc(
+      doc(db, "users", currentUser.uid),
+      {
+        firstName,
+        lastName,
+        age,
+        heightCm,
+        goalWeightKg,
+        goalTimelineDate,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+
     await setDoc(settingsRef(currentUser.uid), {
       dailyCalorieGoalDefault,
       hydrationGoalMl,

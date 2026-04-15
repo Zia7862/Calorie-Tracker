@@ -11,6 +11,27 @@
   --shadow: 0 24px 60px rgba(2, 8, 23, 0.14);
 }
 
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes gentleGlow {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(21, 128, 61, 0.18);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(21, 128, 61, 0);
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -37,6 +58,12 @@ body {
   border: 1px solid var(--border);
   border-radius: 20px;
   box-shadow: var(--shadow);
+  animation: fadeSlideUp 0.34s ease both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
 }
 
 .sidebar {
@@ -83,6 +110,24 @@ body {
   justify-content: space-between;
   align-items: center;
   gap: 0.8rem;
+}
+
+.topbar-controls {
+  display: grid;
+  gap: 0.35rem;
+  justify-items: end;
+}
+
+.date-control-label {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.date-control-input {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.42rem 0.52rem;
+  font: inherit;
 }
 
 .kicker {
@@ -199,6 +244,7 @@ h3 {
 
 .action-link:hover {
   background: var(--primary-dark);
+  animation: gentleGlow 0.9s ease;
 }
 
 .stack-form {
@@ -243,6 +289,7 @@ h3 {
 
 .stack-form button:hover {
   background: var(--primary-dark);
+  animation: gentleGlow 0.9s ease;
 }
 
 .simple-list {
@@ -266,6 +313,10 @@ h3 {
   margin-left: auto;
 }
 
+.simple-list li span {
+  overflow-wrap: anywhere;
+}
+
 .delete-btn {
   border: 0;
   border-radius: 8px;
@@ -286,10 +337,70 @@ h3 {
   grid-column: span 8;
 }
 
+.water-bottle {
+  margin-top: 0.8rem;
+  height: 180px;
+  width: 90px;
+  border: 3px solid #94a3b8;
+  border-radius: 18px 18px 24px 24px;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #f8fafc, #eef2ff);
+}
+
+.water-bottle::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 28px;
+  width: 28px;
+  height: 10px;
+  border-radius: 6px 6px 0 0;
+  background: #94a3b8;
+}
+
+.water-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(180deg, #60a5fa, #2563eb);
+  transition: height 0.45s ease;
+}
+
 .status-message {
   min-height: 1.2rem;
   margin: 0 0 0.2rem;
   font-weight: 500;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.55rem;
+  padding: 0.5rem;
+  box-shadow: none;
+}
+
+.toggle-btn {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: #1e293b;
+  border-radius: 999px;
+  padding: 0.46rem 0.82rem;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.toggle-btn.active {
+  background: #e8f5ec;
+  color: #14532d;
+  border-color: #b7e1c6;
+}
+
+.hidden-view {
+  display: none;
 }
 
 .status-message.success {
@@ -303,10 +414,39 @@ h3 {
 @media (max-width: 900px) {
   .dashboard-shell {
     grid-template-columns: 1fr;
+    gap: 0.75rem;
+    margin: 0.8rem auto 1.2rem;
   }
 
   .sidebar {
-    grid-template-columns: 1fr;
+    position: sticky;
+    top: 0.4rem;
+    z-index: 4;
+    gap: 0.75rem;
+    padding: 0.85rem;
+  }
+
+  .sidebar h2 {
+    font-size: 1rem;
+  }
+
+  .sidebar-nav {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;
+    padding-bottom: 0.2rem;
+    scrollbar-width: thin;
+  }
+
+  .nav-link {
+    white-space: nowrap;
+    padding: 0.55rem 0.7rem;
+    font-size: 0.92rem;
+  }
+
+  .logout-btn {
+    width: 100%;
+    padding: 0.62rem 0.75rem;
   }
 
   .hero,
@@ -324,10 +464,63 @@ h3 {
   .topbar {
     flex-direction: column;
     align-items: flex-start;
+    padding: 0.95rem 1rem;
+  }
+
+  .topbar-controls {
+    width: 100%;
+    justify-items: start;
   }
 
   .dashboard-shell {
     width: min(94%, 94%);
-    margin-top: 1rem;
+    margin-top: 0.55rem;
+  }
+
+  .kicker {
+    font-size: 0.72rem;
+  }
+
+  .card {
+    border-radius: 16px;
+    padding: 0.95rem;
+  }
+
+  .stats > div {
+    padding: 0.65rem;
+  }
+
+  .value {
+    font-size: 1.15rem;
+  }
+
+  .date-pill {
+    font-size: 0.8rem;
+  }
+
+  .stack-form {
+    gap: 0.4rem;
+  }
+
+  .stack-form input,
+  .stack-form select {
+    padding: 0.55rem 0.62rem;
+    font-size: 0.95rem;
+  }
+
+  .stack-form button,
+  .action-link {
+    padding: 0.62rem 0.7rem;
+    font-size: 0.95rem;
+  }
+
+  .simple-list li {
+    flex-wrap: wrap;
+    gap: 0.35rem 0.7rem;
+  }
+
+  .simple-list li strong,
+  .simple-list li .delete-btn {
+    margin-left: 0;
   }
 }

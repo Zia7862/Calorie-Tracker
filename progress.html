@@ -33,14 +33,24 @@
         <p id="status-message" class="status-message"></p>
         <section class="grid">
           <article class="card">
-            <h3>Set daily calorie goal</h3>
-            <form id="goal-form" class="stack-form">
-              <label for="goal-date">Date</label>
-              <input id="goal-date" type="date" required />
-              <label for="goal-calories">Calories</label>
-              <input id="goal-calories" type="number" min="1" step="1" required />
-              <button type="submit">Save goal</button>
+            <h3>Weekly calorie strategy</h3>
+            <form id="plan-form" class="stack-form">
+              <label for="plan-direction">Goal direction</label>
+              <select id="plan-direction">
+                <option value="lose">Lose weight</option>
+                <option value="gain">Gain weight</option>
+              </select>
+              <label for="plan-speed">Goal speed</label>
+              <select id="plan-speed">
+                <option value="slow">Slow</option>
+                <option value="medium" selected>Medium</option>
+                <option value="fast">Fast</option>
+              </select>
+              <button type="submit">Save weekly plan</button>
             </form>
+            <p class="muted" id="plan-summary">Your weekly target will appear here.</p>
+            <p class="value" id="weekly-calorie-goal">0 kcal/week</p>
+            <p class="muted" id="daily-calorie-goal">0 kcal/day</p>
           </article>
           <article class="card">
             <h3>Log weight</h3>
