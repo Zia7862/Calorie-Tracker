@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NutriTrack | Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="home.css" />
+  </head>
+  <body>
+    <main class="dashboard-shell">
+      <aside class="sidebar card">
+        <div>
+          <p class="kicker">NutriTrack</p>
+          <h2>Calorie Tracker</h2>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="nav-link active" href="./home.html">Dashboard</a>
+          <a class="nav-link" href="./meals.html">Meals</a>
+          <a class="nav-link" href="./hydration.html">Hydration</a>
+          <a class="nav-link" href="./progress.html">Progress</a>
+          <a class="nav-link" href="./settings.html">Settings</a>
+        </nav>
+        <button id="logout-btn" class="logout-btn" type="button">Log Out</button>
+      </aside>
+
+      <section class="content">
+        <header class="topbar card">
+          <div>
+            <h1>Dashboard</h1>
+            <p class="subtext" id="welcome-text">Loading your account...</p>
+          </div>
+          <p class="date-pill" id="today-date">Loading date...</p>
+        </header>
+
+        <section class="grid">
+          <article class="card hero">
+            <h3>Today at a glance</h3>
+            <p class="muted">Your nutrition overview for today.</p>
+            <div class="stats">
+              <div>
+                <p class="label">Calories left</p>
+                <p class="value" id="calories-left">0</p>
+              </div>
+              <div>
+                <p class="label">Calories eaten</p>
+                <p class="value" id="calories-eaten">0</p>
+              </div>
+              <div>
+                <p class="label">Meals logged</p>
+                <p class="value" id="meals-logged">0</p>
+              </div>
+              <div>
+                <p class="label">Daily goal</p>
+                <p class="value" id="daily-goal">0</p>
+              </div>
+              <div>
+                <p class="label">Latest weight</p>
+                <p class="value" id="latest-weight">-</p>
+              </div>
+              <div>
+                <p class="label">On track?</p>
+                <p class="value" id="on-track">-</p>
+              </div>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Quick links</h3>
+            <div class="button-group">
+              <a class="action-link" href="./meals.html">Log a meal</a>
+              <a class="action-link" href="./hydration.html">Add water intake</a>
+              <a class="action-link" href="./progress.html">Update goals & weight</a>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>Today's hydration</h3>
+            <p class="muted">Total water logged so far today.</p>
+            <p class="value" id="water-today">0.0 L</p>
+          </article>
+
+          <article class="card meals-card">
+            <h3>Today's meals</h3>
+            <ul id="meals-list" class="simple-list"></ul>
+          </article>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="home.js"></script>
+  </body>
+</html>

@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NutriTrack | Login</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="brand-panel">
+        <p class="brand-kicker">NutriTrack</p>
+        <h1>Healthy habits, one day at a time.</h1>
+        <p class="brand-copy">
+          Log in to continue tracking calories, meals, and hydration with a
+          clean dashboard built for consistency.
+        </p>
+        <ul class="feature-list">
+          <li>Personalized daily calorie targets</li>
+          <li>Fast meal logging and summaries</li>
+          <li>Clear weekly progress snapshots</li>
+        </ul>
+      </section>
+
+      <section class="auth-panel">
+        <h2>Welcome back</h2>
+        <p class="subtext">Log in to continue your nutrition journey.</p>
+
+        <form id="auth-form" class="auth-form">
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" placeholder="you@example.com" required />
+
+          <label for="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="At least 6 characters"
+            minlength="6"
+            required
+          />
+
+          <button id="login-btn" type="submit">Log In</button>
+        </form>
+
+        <a id="signup-btn" href="./signup.html" class="text-link">
+          New here? Create your account
+        </a>
+        <p id="status-message" class="status-message"></p>
+      </section>
+    </main>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NutriTrack | Meals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="home.css" />
+  </head>
+  <body>
+    <main class="dashboard-shell">
+      <aside class="sidebar card">
+        <div>
+          <p class="kicker">NutriTrack</p>
+          <h2>Calorie Tracker</h2>
+        </div>
+        <nav class="sidebar-nav">
+          <a class="nav-link" href="./home.html">Dashboard</a>
+          <a class="nav-link active" href="./meals.html">Meals</a>
+          <a class="nav-link" href="./hydration.html">Hydration</a>
+          <a class="nav-link" href="./progress.html">Progress</a>
+          <a class="nav-link" href="./settings.html">Settings</a>
+        </nav>
+        <button id="logout-btn" class="logout-btn" type="button">Log Out</button>
+      </aside>
+
+      <section class="content">
+        <header class="topbar card">
+          <div>
+            <h1>Meals</h1>
+            <p class="subtext" id="welcome-text">Loading your account...</p>
+          </div>
+          <p class="date-pill" id="today-date">Loading date...</p>
+        </header>
+
+        <p id="status-message" class="status-message"></p>
+
+        <section class="grid">
+          <article class="card">
+            <h3>Add a meal</h3>
+            <form id="meal-form" class="stack-form">
+              <label for="meal-date">Date</label>
+              <input id="meal-date" name="mealDate" type="date" required />
+              <label for="meal-name">Meal name</label>
+              <input id="meal-name" name="mealName" type="text" placeholder="e.g. Chicken wrap" required />
+              <label for="meal-type">Meal type</label>
+              <select id="meal-type" name="mealType">
+                <option value="Breakfast">Breakfast</option>
+                <option value="Lunch">Lunch</option>
+                <option value="Dinner">Dinner</option>
+                <option value="Snack">Snack</option>
+              </select>
+              <label for="meal-calories">Calories</label>
+              <input id="meal-calories" name="mealCalories" type="number" min="1" step="1" required />
+              <button type="submit">Save meal</button>
+            </form>
+          </article>
+
+          <article class="card meals-card">
+            <h3>Meals for selected date</h3>
+            <ul id="meals-list" class="simple-list"></ul>
+          </article>
+        </section>
+      </section>
+    </main>
+    <script type="module" src="meals.js"></script>
+  </body>
+</html>
