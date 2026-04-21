@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="home.css" />
@@ -41,63 +41,84 @@
         <p id="status-message" class="status-message"></p>
 
         <div class="view-toggle card">
-          <button id="show-add-view" class="toggle-btn active" type="button">Add Meal</button>
-          <button id="show-library-view" class="toggle-btn" type="button">Saved Meals</button>
+          <button id="show-add-view" class="toggle-btn active" type="button">Add meal</button>
+          <button id="show-library-view" class="toggle-btn" type="button">Meal library</button>
         </div>
 
         <section class="grid">
-          <article class="card view-add">
+          <article class="card view-add meals-flow-card">
             <h3>Add a meal</h3>
-            <form id="meal-form" class="stack-form">
-              <label for="meal-date">Date</label>
-              <input id="meal-date" name="mealDate" type="date" required />
-              <label for="meal-template">Quick add from saved meals</label>
-              <select id="meal-template" name="mealTemplate">
-                <option value="">Choose a saved meal</option>
-              </select>
+            <p class="muted">Pick a meal time, then choose a saved item or enter details.</p>
+            <div id="add-meal-slot-bubbles" class="meal-slot-bubbles" aria-label="Meal time"></div>
+            <div class="meal-source-tabs">
+              <button type="button" class="meal-source-tab active" data-source="slot">For this time</button>
+              <button type="button" class="meal-source-tab" data-source="all">All saved meals</button>
+            </div>
+            <div id="meal-library-search-wrap" class="meal-search-wrap hidden-view">
+              <label class="sr-only" for="meal-library-search">Search saved meals</label>
+              <input
+                id="meal-library-search"
+                class="meal-search-input"
+                type="search"
+                placeholder="Search by name…"
+                autocomplete="off"
+              />
+            </div>
+            <div id="meal-pick-list" class="meal-pick-list"></div>
+            <form id="meal-form" class="stack-form meal-detail-form">
               <label for="meal-name">Meal name</label>
-              <input id="meal-name" name="mealName" type="text" placeholder="e.g. Chicken wrap" required />
-              <label for="meal-type">Meal type</label>
-              <select id="meal-type" name="mealType">
-                <option value="Breakfast">Breakfast</option>
-                <option value="Lunch">Lunch</option>
-                <option value="Dinner">Dinner</option>
-                <option value="Snack">Snack</option>
-              </select>
+              <input id="meal-name" name="mealName" type="text" placeholder="e.g. Scrambled eggs" required />
               <label for="meal-calories">Calories</label>
               <input id="meal-calories" name="mealCalories" type="number" min="1" step="1" required />
-              <label for="meal-weight">Food weight in grams (optional)</label>
+              <label for="meal-protein">Protein (g, optional)</label>
+              <input id="meal-protein" name="mealProtein" type="number" min="0" step="0.1" placeholder="e.g. 24" />
+              <label for="meal-carbs">Carbs (g, optional)</label>
+              <input id="meal-carbs" name="mealCarbs" type="number" min="0" step="0.1" placeholder="e.g. 12" />
+              <label for="meal-weight">Food weight (g, optional)</label>
               <input id="meal-weight" name="mealWeight" type="number" min="1" step="1" placeholder="e.g. 220" />
-              <button type="submit">Save meal</button>
+              <button type="submit">Save meal for selected time</button>
             </form>
           </article>
 
           <article class="card meals-card view-add">
-            <h3>Meals for selected date</h3>
+            <h3>Meals for this day</h3>
             <ul id="meals-list" class="simple-list"></ul>
           </article>
 
-          <article class="card view-library hidden-view">
-            <h3>Saved meals</h3>
-            <p class="muted">Create once, reuse anytime.</p>
-            <form id="template-form" class="stack-form">
+          <article class="card view-library hidden-view meals-flow-card">
+            <h3>Save a meal to your library</h3>
+            <p class="muted">Choose a meal time bubble first, then enter details. It will appear when you log that time.</p>
+            <div id="template-slot-bubbles" class="meal-slot-bubbles" aria-label="Save under meal time"></div>
+            <form id="template-form" class="stack-form meal-detail-form">
               <label for="template-name">Meal name</label>
               <input id="template-name" name="templateName" type="text" placeholder="e.g. Big Mac" required />
               <label for="template-calories">Calories</label>
               <input id="template-calories" name="templateCalories" type="number" min="1" step="1" required />
-              <label for="template-weight">Default weight in grams (optional)</label>
+              <label for="template-protein">Protein (g, optional)</label>
+              <input id="template-protein" type="number" min="0" step="0.1" placeholder="e.g. 30" />
+              <label for="template-carbs">Carbs (g, optional)</label>
+              <input id="template-carbs" type="number" min="0" step="0.1" placeholder="e.g. 45" />
+              <label for="template-weight">Default weight (g, optional)</label>
               <input id="template-weight" name="templateWeight" type="number" min="1" step="1" placeholder="e.g. 220" />
-              <button type="submit">Save to meal library</button>
+              <button type="submit">Save to library</button>
             </form>
           </article>
 
           <article class="card meals-card view-library hidden-view">
-            <h3>Your meal library</h3>
+            <h3>Your saved library</h3>
+            <p class="muted">Delete items you no longer need.</p>
             <ul id="templates-list" class="simple-list"></ul>
           </article>
         </section>
       </section>
     </main>
+    <nav class="mobile-bottom-nav">
+      <a class="nav-link" href="./home.html">Home</a>
+      <a class="nav-link active" href="./meals.html">Meals</a>
+      <a class="nav-link" href="./hydration.html">Water</a>
+      <a class="nav-link" href="./progress.html">Progress</a>
+      <a class="nav-link" href="./settings.html">Settings</a>
+    </nav>
     <script type="module" src="meals.js"></script>
   </body>
 </html>

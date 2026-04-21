@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="home.css" />
@@ -31,6 +31,7 @@
           <p id="today-date" class="date-pill">Loading date...</p>
         </header>
         <p id="status-message" class="status-message"></p>
+        <div id="plan-objective-strip" class="plan-objective-strip hidden-view" role="status"></div>
         <section class="grid">
           <article class="card">
             <h3>Weekly calorie strategy</h3>
@@ -39,12 +40,6 @@
               <select id="plan-direction">
                 <option value="lose">Lose weight</option>
                 <option value="gain">Gain weight</option>
-              </select>
-              <label for="plan-speed">Goal speed</label>
-              <select id="plan-speed">
-                <option value="slow">Slow</option>
-                <option value="medium" selected>Medium</option>
-                <option value="fast">Fast</option>
               </select>
               <button type="submit">Save weekly plan</button>
             </form>
@@ -64,11 +59,39 @@
           </article>
           <article class="card meals-card">
             <h3>Weight history</h3>
+            <div class="weight-scale-card">
+              <p class="muted">⚖️ Live scale based on your latest entry</p>
+              <div class="weight-scale" id="weight-scale">
+                <div class="weight-scale-needle" id="weight-scale-needle"></div>
+              </div>
+              <p class="value" id="latest-scale-weight">--.- kg</p>
+            </div>
             <ul id="weight-list" class="simple-list"></ul>
           </article>
         </section>
       </section>
     </main>
+    <nav class="mobile-bottom-nav">
+      <a class="nav-link" href="./home.html">Home</a>
+      <a class="nav-link" href="./meals.html">Meals</a>
+      <a class="nav-link" href="./hydration.html">Water</a>
+      <a class="nav-link active" href="./progress.html">Progress</a>
+      <a class="nav-link" href="./settings.html">Settings</a>
+    </nav>
+
+    <div id="plan-modal" class="modal-backdrop hidden-view" aria-hidden="true">
+      <div class="modal-card" role="dialog" aria-labelledby="plan-modal-title">
+        <h3 id="plan-modal-title">Weekly pace</h3>
+        <p class="muted" id="plan-modal-desc"></p>
+        <label for="plan-modal-input" id="plan-modal-label">Kg per week</label>
+        <input id="plan-modal-input" class="modal-input" type="number" step="any" />
+        <div class="modal-actions">
+          <button type="button" class="modal-btn secondary" id="plan-modal-cancel">Cancel</button>
+          <button type="button" class="modal-btn primary" id="plan-modal-confirm">Save plan</button>
+        </div>
+      </div>
+    </div>
+
     <script type="module" src="progress.js"></script>
   </body>
 </html>

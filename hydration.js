@@ -7,7 +7,6 @@ const todayDate = document.getElementById("today-date");
 const logoutBtn = document.getElementById("logout-btn");
 const statusMessage = document.getElementById("status-message");
 const waterForm = document.getElementById("water-form");
-const waterDateInput = document.getElementById("water-date");
 const waterAmountInput = document.getElementById("water-amount");
 const waterTotal = document.getElementById("water-total");
 const waterList = document.getElementById("water-list");
@@ -19,6 +18,7 @@ let currentUser = null;
 let currentDayKey = "";
 let hydrationGoalMl = 2000;
 const urlDateParam = new URLSearchParams(window.location.search).get("date");
+const SELECTED_DATE_KEY_STORAGE = "nutri_selected_date";
 
 function getDateKey(d) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
@@ -45,13 +45,13 @@ function hydrationCollection(uid) {
 }
 
 async function refreshHydration() {
-  const dateKey = waterDateInput.value;
+  const dateKey = currentDayKey;
   const q = query(hydrationCollection(currentUser.uid), where("dateKey", "==", dateKey));
   const snap = await getDocs(q);
   const entries = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
   const totalMl = entries.reduce((sum, e) => sum + (Number(e.amountMl) || 0), 0);
   waterTotal.textContent = `${(totalMl / 1000).toFixed(1)} L`;
-  const safeGoalMl = Math.max(500, Number(hydrationGoalMl) || 2000);
+  const safeGoalMl = Math.max(1, Number(hydrationGoalMl) || 2000);
   waterGoalText.textContent = `Goal: ${(safeGoalMl / 1000).toFixed(1)} L`;
   const progressPercent = Math.min(100, Math.max(0, Math.round((totalMl / safeGoalMl) * 100)));
   waterFill.style.height = `${progressPercent}%`;
@@ -74,12 +74,10 @@ logoutBtn.addEventListener("click", async () => {
   window.location.href = "./index.html";
 });
 
-waterDateInput.addEventListener("change", () => refreshHydration().catch((e) => showMessage(e.message, "error")));
-
 waterForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const amountLitres = Number(waterAmountInput.value);
-  if (!waterDateInput.value || !Number.isFinite(amountLitres) || amountLitres <= 0 || amountLitres > 20) {
+  if (!currentDayKey || !Number.isFinite(amountLitres) || amountLitres <= 0 || amountLitres > 20) {
     showMessage("Please enter a valid hydration amount.", "error");
     return;
   }
@@ -87,7 +85,7 @@ waterForm.addEventListener("submit", async (event) => {
   try {
     await addDoc(hydrationCollection(currentUser.uid), {
       amountMl,
-      dateKey: waterDateInput.value,
+      dateKey: currentDayKey,
       createdAt: serverTimestamp(),
     });
     waterAmountInput.value = "";
@@ -123,10 +121,14 @@ onAuthStateChanged(auth, async (user) => {
   }
   currentUser = user;
   const today = new Date();
-  todayDate.textContent = formatLongDate(today);
-  currentDayKey = getDateKey(today);
-  waterDateInput.value = urlDateParam || currentDayKey;
-  welcomeText.textContent = `Signed in as ${user.email.split("@")[0]}`;
+  currentDayKey = urlDateParam || localStorage.getItem(SELECTED_DATE_KEY_STORAGE) || getDateKey(today);
+  localStorage.setItem(SELECTED_DATE_KEY_STORAGE, currentDayKey);
+  todayDate.textContent = formatLongDate(new Date(`${currentDayKey}T00:00:00`));
+
+  const profileSnap = await getDoc(doc(db, "users", user.uid));
+  const profile = profileSnap.exists() ? profileSnap.data() : {};
+  const displayName = profile.firstName ? `${profile.firstName} ${profile.lastName || ""}`.trim() : user.email.split("@")[0];
+  welcomeText.textContent = `Signed in as ${displayName}`;
 
   const settingsRef = doc(db, "users", user.uid, "settings", "preferences");
   const settingsSnap = await getDoc(settingsRef);
@@ -145,14 +147,11 @@ setInterval(() => {
   }
   const now = new Date();
   const newDayKey = getDateKey(now);
-  if (newDayKey === currentDayKey) {
+  const pinnedDate = localStorage.getItem(SELECTED_DATE_KEY_STORAGE) || currentDayKey;
+  if (newDayKey === currentDayKey || pinnedDate !== currentDayKey) {
     return;
   }
-  const previousSelectedDate = waterDateInput.value;
   currentDayKey = newDayKey;
   todayDate.textContent = formatLongDate(now);
-  if (previousSelectedDate !== currentDayKey) {
-    waterDateInput.value = currentDayKey;
-    refreshHydration().catch((error) => showMessage(error.message, "error"));
-  }
+  refreshHydration().catch((error) => showMessage(error.message, "error"));
 }, 60000);

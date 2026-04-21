@@ -22,13 +22,21 @@ const onTrackEl = document.getElementById("on-track");
 const waterTodayEl = document.getElementById("water-today");
 const recommendedCaloriesEl = document.getElementById("recommended-calories");
 const goalProgressEl = document.getElementById("goal-progress");
+const bmiValueEl = document.getElementById("bmi-value");
+const bodyFatValueEl = document.getElementById("body-fat-value");
+const calorieProgressFill = document.getElementById("calorie-progress-fill");
+const calorieProgressLabel = document.getElementById("calorie-progress-label");
+const dashHydrationFill = document.getElementById("dash-hydration-fill");
+const dashHydrationLabel = document.getElementById("dash-hydration-label");
 const timelineTextEl = document.getElementById("timeline-text");
 const mealsListEl = document.getElementById("meals-list");
+const communityListEl = document.getElementById("community-list");
 const daySelectorInput = document.getElementById("day-selector");
 const mealsLink = document.getElementById("meals-link");
 const hydrationLink = document.getElementById("hydration-link");
 const progressLink = document.getElementById("progress-link");
 let currentUserId = null;
+const SELECTED_DATE_KEY_STORAGE = "nutri_selected_date";
 let currentTodayKey = getDateKey(new Date());
 let selectedDateKey = currentTodayKey;
 let viewingToday = true;
@@ -82,10 +90,87 @@ function roundToNearestFifty(value) {
 }
 
 function syncDateLinks(dateKey) {
+  localStorage.setItem(SELECTED_DATE_KEY_STORAGE, dateKey);
   const encodedDate = encodeURIComponent(dateKey);
   mealsLink.href = `./meals.html?date=${encodedDate}`;
   hydrationLink.href = `./hydration.html?date=${encodedDate}`;
   progressLink.href = `./progress.html?date=${encodedDate}`;
+}
+
+async function refreshCommunity(uid, dateKey, goalCalories, caloriesEaten) {
+  try {
+    const statsRef = doc(db, "dailyStats", `${uid}_${dateKey}`);
+    const progressPercent = goalCalories > 0 ? Math.min(999, Math.round((caloriesEaten / goalCalories) * 100)) : 0;
+    await setDoc(
+      statsRef,
+      {
+        uid,
+        dateKey,
+        caloriesEaten,
+        goalCalories,
+        progressPercent,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+
+    const statsSnap = await getDocs(query(collection(db, "dailyStats"), where("dateKey", "==", dateKey)));
+    const rows = statsSnap.docs
+      .map((item) => item.data())
+      .sort((a, b) => (b.progressPercent || 0) - (a.progressPercent || 0))
+      .slice(0, 8);
+
+    if (!rows.length) {
+      communityListEl.innerHTML = "<li><span>No community stats yet for this date.</span></li>";
+      return;
+    }
+
+    communityListEl.innerHTML = rows
+      .map((row) => {
+        const name = row.uid === uid ? "You" : `User ${String(row.uid).slice(0, 6)}`;
+        return `<li><span>${name}</span><strong>${row.progressPercent || 0}% of goal</strong></li>`;
+      })
+      .join("");
+  } catch (error) {
+    communityListEl.innerHTML =
+      "<li><span>Community leaderboard is turned off until your Firestore rules allow signed-in users to read and write the dailyStats collection (see firestore.rules in this project).</span></li>";
+  }
+}
+
+function computeBmi(weightKg, heightCm) {
+  if (!Number.isFinite(weightKg) || !Number.isFinite(heightCm) || heightCm <= 0) {
+    return null;
+  }
+  const hM = heightCm / 100;
+  return weightKg / (hM * hM);
+}
+
+function estimateBodyFatPercent(bmi, age, biologicalSex) {
+  if (!Number.isFinite(bmi) || !Number.isFinite(age)) {
+    return null;
+  }
+  const sexFactor = biologicalSex === "male" ? 1 : biologicalSex === "female" ? 0 : 0.5;
+  const bf = 1.2 * bmi + 0.23 * age - 10.8 * sexFactor - 5.4;
+  return clamp(bf, 4, 55);
+}
+
+function computeWeightGoalJourneyPercent(profile, weightKg) {
+  if (!profile || !Number.isFinite(Number(weightKg))) {
+    return null;
+  }
+  const start = Number(profile.startWeightKg ?? profile.currentWeightKg);
+  const goal = Number(profile.goalWeightKg);
+  const cur = Number(weightKg);
+  if (!Number.isFinite(start) || !Number.isFinite(goal) || !Number.isFinite(cur)) {
+    return null;
+  }
+  if (Math.abs(goal - start) < 0.01) {
+    return null;
+  }
+  if (goal < start) {
+    return clamp(((start - cur) / (start - goal)) * 100, 0, 100);
+  }
+  return clamp(((cur - start) / (goal - start)) * 100, 0, 100);
 }
 
 function calculateCaloriePlan(profile, latestWeight, today) {
@@ -173,14 +258,22 @@ function renderMeals(meals) {
   }
 
   mealsListEl.innerHTML = meals
-    .map(
-      (meal) => `
+    .map((meal) => {
+      const extras = [];
+      if (meal.proteinG != null && Number(meal.proteinG) > 0) {
+        extras.push(`P ${Number(meal.proteinG).toFixed(0)}g`);
+      }
+      if (meal.carbsG != null && Number(meal.carbsG) > 0) {
+        extras.push(`C ${Number(meal.carbsG).toFixed(0)}g`);
+      }
+      const extraText = extras.length ? ` · ${extras.join(" · ")}` : "";
+      return `
       <li>
-        <span>${meal.mealType}: ${meal.name}</span>
+        <span>${meal.mealType}: ${meal.name}${extraText}</span>
         <strong>${meal.calories} kcal</strong>
       </li>
-    `
-    )
+    `;
+    })
     .join("");
 }
 
@@ -207,6 +300,7 @@ async function refreshDashboard(uid, dateKey) {
   const settingsDefaultGoal = Number(settingsData.dailyCalorieGoalDefault) || 0;
   const goalCalories = manualGoalCalories || caloriePlan?.recommendedCalories || settingsDefaultGoal || 0;
   const caloriesLeft = goalCalories - caloriesEaten;
+  const hydrationGoalMl = Math.max(1, Number(settingsData.hydrationGoalMl) || 2000);
 
   const hydrationQuery = query(collection(db, "users", uid, "hydrationLogs"), where("dateKey", "==", dateKey));
   const hydrationSnap = await getDocs(hydrationQuery);
@@ -219,7 +313,36 @@ async function refreshDashboard(uid, dateKey) {
   latestWeightEl.textContent = Number.isFinite(latestWeight) ? `${Number(latestWeight).toFixed(1)} kg` : "-";
   waterTodayEl.textContent = `${(totalWaterMl / 1000).toFixed(1)} L`;
   recommendedCaloriesEl.textContent = formatCalories(caloriePlan?.recommendedCalories || settingsDefaultGoal || goalCalories);
-  goalProgressEl.textContent = caloriePlan ? `${Math.round(caloriePlan.progressPercent)}%` : "Set profile";
+
+  const journeyWeight = Number.isFinite(Number(latestWeight)) ? Number(latestWeight) : Number(profile?.currentWeightKg);
+  const weightJourney = computeWeightGoalJourneyPercent(profile, journeyWeight);
+  goalProgressEl.textContent =
+    weightJourney != null ? `${Math.round(weightJourney)}% toward goal weight` : "Save your profile in Settings (and log weight on Progress)";
+
+  const bmiWeight = Number.isFinite(Number(latestWeight)) ? Number(latestWeight) : Number(profile?.currentWeightKg);
+  const bmi = Number.isFinite(bmiWeight) ? computeBmi(bmiWeight, Number(profile?.heightCm)) : null;
+  if (bmiValueEl) {
+    bmiValueEl.textContent = bmi != null ? bmi.toFixed(1) : "-";
+  }
+  const bf =
+    bmi != null && profile
+      ? estimateBodyFatPercent(bmi, Number(profile.age), profile.biologicalSex || "")
+      : null;
+  if (bodyFatValueEl) {
+    bodyFatValueEl.textContent = bf != null ? `${bf.toFixed(1)}%` : "-";
+  }
+
+  const calPct = goalCalories > 0 ? Math.min(100, Math.round((caloriesEaten / goalCalories) * 100)) : 0;
+  if (calorieProgressFill && calorieProgressLabel) {
+    calorieProgressFill.style.width = `${calPct}%`;
+    calorieProgressLabel.textContent = `${caloriesEaten.toLocaleString()} / ${goalCalories.toLocaleString()} kcal (${calPct}%)`;
+  }
+
+  const hydPct = Math.min(100, Math.round((totalWaterMl / hydrationGoalMl) * 100));
+  if (dashHydrationFill && dashHydrationLabel) {
+    dashHydrationFill.style.width = `${hydPct}%`;
+    dashHydrationLabel.textContent = `${hydPct}% of ${(hydrationGoalMl / 1000).toFixed(1)} L goal · ${(totalWaterMl / 1000).toFixed(2)} L logged`;
+  }
 
   if (goalCalories <= 0) {
     onTrackEl.textContent = "Set goal";
@@ -235,6 +358,7 @@ async function refreshDashboard(uid, dateKey) {
     : "Complete your profile in settings to unlock goal timeline guidance.";
 
   renderMeals(meals);
+  await refreshCommunity(uid, dateKey, goalCalories, caloriesEaten);
 }
 
 logoutBtn.addEventListener("click", async () => {
@@ -250,7 +374,9 @@ const today = new Date();
 currentTodayKey = getDateKey(today);
 todayDate.textContent = formatLongDate(today);
 selectedDateKey = currentTodayKey;
+selectedDateKey = localStorage.getItem(SELECTED_DATE_KEY_STORAGE) || selectedDateKey;
 daySelectorInput.value = selectedDateKey;
+todayDate.textContent = formatLongDate(parseDateKey(selectedDateKey));
 syncDateLinks(selectedDateKey);
 
 daySelectorInput.addEventListener("change", () => {
@@ -278,7 +404,7 @@ onAuthStateChanged(auth, (user) => {
       const userSnap = await getDoc(getUserDocRef(user.uid));
       const profile = userSnap.exists() ? userSnap.data() : {};
       const displayName = profile.firstName ? `${profile.firstName} ${profile.lastName || ""}`.trim() : firstPartOfEmail;
-      welcomeText.textContent = `Welcome, ${displayName}`;
+      welcomeText.textContent = `Signed in as ${displayName}`;
 
       const settingsRef = doc(db, "users", user.uid, "settings", "preferences");
       const settingsSnap = await getDoc(settingsRef);
